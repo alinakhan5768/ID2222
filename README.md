@@ -4,4 +4,3 @@ This repository belong to the course Data Mining (ID2222) at KTH University in S
 
 The members of the group are:
 * [Enric Perpinyà Pitarch](https://github.com/evilmonkey19)
-* [Alina Khan](https://github.com/alinakhan5768)
