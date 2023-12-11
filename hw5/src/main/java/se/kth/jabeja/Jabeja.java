@@ -1,6 +1,8 @@
 package se.kth.jabeja;
 
 import org.apache.log4j.Logger;
+
+import se.kth.jabeja.config.AnnealingSelectionPolicy;
 import se.kth.jabeja.config.Config;
 import se.kth.jabeja.config.NodeSelectionPolicy;
 import se.kth.jabeja.io.FileIO;
@@ -51,11 +53,17 @@ public class Jabeja {
    * Simulated analealing cooling function
    */
   private void saCoolDown(){
+    AnnealingSelectionPolicy annealingPolicy = config.getAnnealingSelectionPolicy();
     // Decrease the temperature
-    if (T > 1)
+    if (T > 1 && annealingPolicy == AnnealingSelectionPolicy.LINEAR) {
       T -= config.getDelta();
-    if (T < 1)
+    } else if (T > 1 && annealingPolicy == AnnealingSelectionPolicy.EXPONENTIAL) {
+      T *= config.getDelta();
+    } else if (T > 1 && annealingPolicy == AnnealingSelectionPolicy.IMPROVED_EXP) {
+      T = (float) (T / Math.log(1 + config.getDelta()));
+    } else {
       T = 1;
+    }
   }
 
   /**
@@ -110,9 +118,28 @@ public class Jabeja {
       int dqp = getDegree(nodeq, nodep.getColor());
       double new_energy = Math.pow(dpq, config.getAlpha()) + Math.pow(dqp, config.getAlpha());
 
-      if(new_energy * T < old_energy && new_energy > highestBenefit){
+      boolean update = false;
+      double currentBenefit = 0;
+      
+      if (config.getAnnealingSelectionPolicy() == AnnealingSelectionPolicy.LINEAR) {
+        currentBenefit = new_energy;
+        update = new_energy * T > old_energy;
+      } else {
+        double acceptanceProb = 0;
+        double randomProb = new Random().nextDouble();
+        if (config.getAnnealingSelectionPolicy() == AnnealingSelectionPolicy.EXPONENTIAL) {
+          acceptanceProb = Math.exp((new_energy - old_energy) / T);
+        }
+        if (config.getAnnealingSelectionPolicy() == AnnealingSelectionPolicy.IMPROVED_EXP) {
+          acceptanceProb = Math.exp(( 1 / old_energy - 1 /new_energy) / T);
+        }
+        currentBenefit = acceptanceProb;
+        update = acceptanceProb > randomProb;
+      }
+
+      if (highestBenefit > currentBenefit && new_energy != old_energy && update) {
         bestPartner = nodeq;
-        highestBenefit = new_energy;
+        highestBenefit = currentBenefit;
       }
     }
     return bestPartner;
