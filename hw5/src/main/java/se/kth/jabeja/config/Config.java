@@ -14,6 +14,8 @@ public class Config {
   private NodeSelectionPolicy nodeSelectionPolicy;
   private AnnealingSelectionPolicy annealingSelectionPolicy;
   private Float alpha;
+  private Boolean restartTemp;
+  private Integer restartTempRounds;
 
   public Config setAlpha(Float alpha) {
     this.alpha = alpha;
@@ -77,6 +79,16 @@ public class Config {
 
   public Config setUniformRandSampleSize(Integer rnd_list_size) {
     this.uniformRandomSampleSize = rnd_list_size;
+    return this;
+  }
+
+  public Config setRestartTemp(Boolean restartTemp) {
+    this.restartTemp = restartTemp;
+    return this;
+  }
+
+  public Config setRestartTempRounds(Integer restartTempRounds) {
+    this.restartTempRounds = restartTempRounds;
     return this;
   }
 
@@ -169,6 +181,20 @@ public class Config {
       throw new NullPointerException("Annealing selection policy is not defined.");
     }
     return annealingSelectionPolicy;
+  }
+
+  public Boolean getRestartTemp() {
+    if (restartTemp == null) {
+      throw new NullPointerException("Restart temperature is not defined.");
+    }
+    return restartTemp;
+  }
+
+  public Integer getRestartTempRounds() {
+    if (restartTempRounds == null) {
+      throw new NullPointerException("Restart temperature rounds is not defined.");
+    }
+    return restartTempRounds;
   }
 
   public Config createJabejaConfig() {

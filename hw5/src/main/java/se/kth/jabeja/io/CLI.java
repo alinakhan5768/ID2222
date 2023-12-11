@@ -63,6 +63,12 @@ public class CLI {
   private String ANNEALING_SELECTION_POLICY = "LINEAR";
   private AnnealingSelectionPolicy annealingSelectionPolicy = AnnealingSelectionPolicy.LINEAR;
 
+  @Option(name = "-restartTemp", usage = "Restart temperature")
+  private boolean restartTemp = false;
+
+  @Option(name = "-restartTempRounds", usage = "Number of rounds to restart temperature")
+  private int restartTempRounds = 100;
+
 
   public Config parseArgs(String[] args) throws FileNotFoundException {
     CmdLineParser parser = new CmdLineParser(this);
@@ -128,6 +134,8 @@ public class CLI {
             .setGraphInitialColorPolicy(graphInitColorSelectionPolicy)
             .setOutputDir(OUTPUT_DIR)
             .setAlpha(ALPHA)
-            .setAnnealingSelectionPolicy(annealingSelectionPolicy);
+            .setAnnealingSelectionPolicy(annealingSelectionPolicy)
+            .setRestartTemp(restartTemp)
+            .setRestartTempRounds(restartTempRounds);
   }
 }

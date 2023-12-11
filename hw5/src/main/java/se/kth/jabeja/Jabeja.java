@@ -22,6 +22,11 @@ public class Jabeja {
   private float T;
   private boolean resultFileCreated = false;
 
+  // Task 2
+  private int sameEdgeCutRounds = 0;
+  private int currentEdgeCut = 0;
+  private int previousEdgeCut = 0;
+
 
 
   //-------------------------------------------------------------------
@@ -46,7 +51,24 @@ public class Jabeja {
       //reduce the temperature
       saCoolDown();
       report();
+      restartTemp();
     }
+  }
+
+  // Restart temperature if edge cut finds local minima
+  private void restartTemp(){
+    if (!config.getRestartTemp()) return;
+
+    if (currentEdgeCut == previousEdgeCut) {
+      ++sameEdgeCutRounds;
+      if (sameEdgeCutRounds == config.getRestartTempRounds()) {
+        T = config.getTemperature();
+        sameEdgeCutRounds = 0;
+      }
+    } else {
+      sameEdgeCutRounds = 0;
+    }
+    previousEdgeCut = currentEdgeCut;
   }
 
   /**
@@ -255,6 +277,7 @@ public class Jabeja {
     }
 
     int edgeCut = grayLinks / 2;
+    currentEdgeCut = edgeCut;
 
     logger.info("round: " + round +
             ", edge cut:" + edgeCut +
