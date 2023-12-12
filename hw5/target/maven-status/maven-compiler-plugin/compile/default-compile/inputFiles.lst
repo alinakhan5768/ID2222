@@ -8,3 +8,4 @@
 /Users/enric/Developer/ID2222/hw5/src/main/java/se/kth/jabeja/config/NodeSelectionPolicy.java
 /Users/enric/Developer/ID2222/hw5/src/main/java/se/kth/jabeja/io/CLI.java
 /Users/enric/Developer/ID2222/hw5/src/main/java/se/kth/jabeja/rand/RandNoGenerator.java
+/Users/enric/Developer/ID2222/hw5/src/main/java/se/kth/jabeja/config/AnnealingSelectionPolicy.java

@@ -37,6 +37,10 @@ public class Jabeja {
     this.numberOfSwaps = 0;
     this.config = config;
     this.T = config.getTemperature();
+    
+    if (config.getAnnealingSelectionPolicy() != AnnealingSelectionPolicy.LINEAR) {
+      config.setTemperature(1.0f);
+    }
   }
 
 
@@ -76,15 +80,17 @@ public class Jabeja {
    */
   private void saCoolDown(){
     AnnealingSelectionPolicy annealingPolicy = config.getAnnealingSelectionPolicy();
+    float Tmin = annealingPolicy == AnnealingSelectionPolicy.LINEAR ? 1.0f : 0.0001f;
     // Decrease the temperature
-    if (T > 1 && annealingPolicy == AnnealingSelectionPolicy.LINEAR) {
-      T -= config.getDelta();
-    } else if (T > 1 && annealingPolicy == AnnealingSelectionPolicy.EXPONENTIAL) {
-      T *= config.getDelta();
-    } else if (T > 1 && annealingPolicy == AnnealingSelectionPolicy.IMPROVED_EXP) {
-      T = (float) (T / Math.log(1 + config.getDelta()));
-    } else {
-      T = 1;
+    if (T > 1) {
+      if (annealingPolicy == AnnealingSelectionPolicy.LINEAR) {
+        T -= config.getDelta();
+      } else {
+        T *= config.getDelta();
+      }
+    }
+    if (T < Tmin) {
+      T = Tmin;
     }
   }
 
@@ -100,6 +106,7 @@ public class Jabeja {
             || config.getNodeSelectionPolicy() == NodeSelectionPolicy.LOCAL) {
       // swap with random neighbors
       partner = findPartner(nodeId, getNeighbors(nodep));
+      // System.out.println("partner: " + partner);
     }
 
     if (config.getNodeSelectionPolicy() == NodeSelectionPolicy.HYBRID
@@ -117,9 +124,6 @@ public class Jabeja {
       partner.setColor(colorp);
       ++numberOfSwaps;
     }
-    T -= config.getDelta();
-    if (T < 1)
-      T = 1;
   }
 
   public Node findPartner(int nodeId, Integer[] nodes){
@@ -146,6 +150,7 @@ public class Jabeja {
       if (config.getAnnealingSelectionPolicy() == AnnealingSelectionPolicy.LINEAR) {
         currentBenefit = new_energy;
         update = new_energy * T > old_energy;
+
       } else {
         double acceptanceProb = 0;
         double randomProb = new Random().nextDouble();
@@ -159,7 +164,7 @@ public class Jabeja {
         update = acceptanceProb > randomProb;
       }
 
-      if (highestBenefit > currentBenefit && new_energy != old_energy && update) {
+      if (currentBenefit > highestBenefit && new_energy != old_energy && update) {
         bestPartner = nodeq;
         highestBenefit = currentBenefit;
       }
